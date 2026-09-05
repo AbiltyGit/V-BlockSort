@@ -1,5 +1,28 @@
-#ifndef VBLOCK_SORT_HPP
-#define VBLOCK_SORT_HPP
+#ifndef VBLOCK_VBLOCK_SORT_HPP
+#define VBLOCK_VBLOCK_SORT_HPP
+
+/**
+ * ============================================================================
+ * V-BlockSort: High-Performance, Stable, In-Place Hybrid Sorting Algorithm
+ * ============================================================================
+ * 
+ * Architecture:
+ * - Katman 0: Compile-time unrolled straight-insertion micro-kernel (N <= 16).
+ * - Katman 1: Branch-efficient Galloping search (exponential step lower/upper bound)
+ *             with adaptive boundary skips (O(1) comparison on sorted/reversed data).
+ * - Katman 2: Low-Key Shield via SymMerge divide-and-conquer (prevents KotaSort O(N^2)).
+ * - Katman 3: Byte-Budgeted Stack Buffer (defaults to 4 KB, fitting inside L1 cache;
+ *             strictly bounds stack consumption to prevent stack overflow on large structs).
+ * 
+ * Properties:
+ * - 100% Strictly Stable (preserves relative order of equivalent keys).
+ * - Zero Dynamic Heap Allocations (0 B heap memory, unlike std::stable_sort).
+ * - Strictly Bounded Stack Footprint (<= MaxStackBytes, default 4096 B).
+ * - Standard C++17 Header-Only Library.
+ * 
+ * License: MIT License
+ * ============================================================================
+ */
 
 #include <cstddef>
 #include <cstdint>
@@ -7,27 +30,136 @@
 #include <utility>
 #include <iterator>
 #include <functional>
-#include "vblock_layer0.hpp"
-#include "vblock_layer1.hpp"
 
 namespace VBlock {
 
 // =========================================================================
-// 3. LOW-KEY SHIELD & SYMMETRIC BUFFER MERGE ENGINE (Katman 2 & 3)
+// SECTION 1: MICRO-KERNEL BASE (Katman 0: 16-Element Unrolled Kernel)
 // =========================================================================
 
-// Hierarchical divide-and-conquer merge with galloping split points.
-// When either sub-partition fits into the byte-budgeted cache, it merges
-// linearly in a single streaming pass (zero O(N log N) rotation overhead).
-// If buf is nullptr or buf_cap is 0, gracefully executes pure in-place SymMerge.
+template <typename T, typename Compare>
+inline void sort16_straight_unroll(T* arr, Compare comp) {
+    #define VBLOCK_INSERT_STEP(i) { \
+        T key = std::move(arr[i]); \
+        size_t j = i; \
+        while (j > 0 && comp(key, arr[j - 1])) { \
+            arr[j] = std::move(arr[j - 1]); \
+            --j; \
+        } \
+        arr[j] = std::move(key); \
+    }
+
+    VBLOCK_INSERT_STEP(1);
+    VBLOCK_INSERT_STEP(2);
+    VBLOCK_INSERT_STEP(3);
+    VBLOCK_INSERT_STEP(4);
+    VBLOCK_INSERT_STEP(5);
+    VBLOCK_INSERT_STEP(6);
+    VBLOCK_INSERT_STEP(7);
+    VBLOCK_INSERT_STEP(8);
+    VBLOCK_INSERT_STEP(9);
+    VBLOCK_INSERT_STEP(10);
+    VBLOCK_INSERT_STEP(11);
+    VBLOCK_INSERT_STEP(12);
+    VBLOCK_INSERT_STEP(13);
+    VBLOCK_INSERT_STEP(14);
+    VBLOCK_INSERT_STEP(15);
+
+    #undef VBLOCK_INSERT_STEP
+}
+
+template <typename T, typename Compare>
+inline void SortMicroBlocks(T* arr, size_t n, Compare comp) {
+    size_t full_blocks = n / 16;
+    for (size_t b = 0; b < full_blocks; ++b) {
+        sort16_straight_unroll(arr + b * 16, comp);
+    }
+
+    size_t rem = n % 16;
+    if (rem > 1) {
+        T* tail = arr + full_blocks * 16;
+        for (size_t i = 1; i < rem; ++i) {
+            T key = std::move(tail[i]);
+            size_t j = i;
+            while (j > 0 && comp(key, tail[j - 1])) {
+                tail[j] = std::move(tail[j - 1]);
+                --j;
+            }
+            tail[j] = std::move(key);
+        }
+    }
+}
+
+// =========================================================================
+// SECTION 2: ADAPTIVE GALLOPING SEARCH (Katman 1)
+// =========================================================================
+
+template <typename RandomAccessIterator, typename T, typename Compare>
+inline RandomAccessIterator GallopLowerBound(RandomAccessIterator first, RandomAccessIterator last,
+                                            const T& value, Compare comp) {
+    size_t size = std::distance(first, last);
+    if (size == 0) return first;
+
+    if (size <= 16) {
+        while (first != last && comp(*first, value)) {
+            ++first;
+        }
+        return first;
+    }
+
+    size_t step = 1;
+    RandomAccessIterator prev = first;
+    RandomAccessIterator curr = first;
+
+    while (curr < last && comp(*curr, value)) {
+        prev = curr;
+        curr += step;
+        step <<= 1;
+    }
+
+    if (curr > last) curr = last;
+    return std::lower_bound(prev, curr, value, comp);
+}
+
+template <typename RandomAccessIterator, typename T, typename Compare>
+inline RandomAccessIterator GallopUpperBound(RandomAccessIterator first, RandomAccessIterator last,
+                                            const T& value, Compare comp) {
+    size_t size = std::distance(first, last);
+    if (size == 0) return first;
+
+    if (size <= 16) {
+        while (first != last && !comp(value, *first)) {
+            ++first;
+        }
+        return first;
+    }
+
+    size_t step = 1;
+    RandomAccessIterator prev = first;
+    RandomAccessIterator curr = first;
+
+    while (curr < last && !comp(value, *curr)) {
+        prev = curr;
+        curr += step;
+        step <<= 1;
+    }
+
+    if (curr > last) curr = last;
+    return std::upper_bound(prev, curr, value, comp);
+}
+
+// =========================================================================
+// SECTION 3: SYMMETRIC BUFFER MERGE & LOW-KEY SHIELD (Katman 2 & 3)
+// =========================================================================
+
 template <typename T, typename Compare>
 void MergeSymBuffer(T* arr, size_t first, size_t mid, size_t last, T* buf, size_t buf_cap, Compare comp) {
     if (first >= mid || mid >= last) return;
 
-    // Fast check 1: Already sorted
+    // Fast check 1: Already sorted (1 comparison early-exit)
     if (!comp(arr[mid], arr[mid - 1])) return;
 
-    // Fast check 2: Reversed runs
+    // Fast check 2: Reversed runs (1 comparison + single rotate)
     if (comp(arr[last - 1], arr[first])) {
         std::rotate(arr + first, arr + mid, arr + last);
         return;
@@ -48,7 +180,7 @@ void MergeSymBuffer(T* arr, size_t first, size_t mid, size_t last, T* buf, size_
 
     // LEAF BASE CASES: Use buffer if available and partition fits
     if (buf != nullptr && buf_cap > 0) {
-        // LEAF BASE CASE 1: First half fits into cache
+        // Forward buffer merge
         if (len1 <= buf_cap) {
             for (size_t i = 0; i < len1; ++i) buf[i] = std::move(arr[first + i]);
             T* p_buf = buf;
@@ -64,7 +196,7 @@ void MergeSymBuffer(T* arr, size_t first, size_t mid, size_t last, T* buf, size_
             return;
         }
 
-        // LEAF BASE CASE 2: Second half fits into cache (Backward Merge)
+        // Backward buffer merge
         if (len2 <= buf_cap) {
             for (size_t i = 0; i < len2; ++i) buf[i] = std::move(arr[mid + i]);
             T* p_buf = buf + len2 - 1;
@@ -79,7 +211,19 @@ void MergeSymBuffer(T* arr, size_t first, size_t mid, size_t last, T* buf, size_
         }
     }
 
-    // Symmetric Galloping Split
+    // Fast leaf base cases when no auxiliary buffer is available
+    if (len1 == 1) {
+        T* m2 = GallopLowerBound(arr + mid, arr + last, arr[first], comp);
+        std::rotate(arr + first, arr + mid, m2);
+        return;
+    }
+    if (len2 == 1) {
+        T* m1 = GallopUpperBound(arr + first, arr + mid, arr[mid], comp);
+        std::rotate(m1, arr + mid, arr + last);
+        return;
+    }
+
+    // Symmetric Galloping Split (SymMerge divide & conquer)
     size_t m1, m2;
     if (len1 >= len2) {
         m1 = first + len1 / 2;
@@ -97,40 +241,17 @@ void MergeSymBuffer(T* arr, size_t first, size_t mid, size_t last, T* buf, size_
 }
 
 // =========================================================================
-// 4. MAIN V-BLOCK SORT DRIVERS (Katman 3)
+// SECTION 4: PUBLIC API & ENGINE DRIVERS
 // =========================================================================
 
-// 4.1: Legacy Fixed-512 Version (For comparison)
-template <typename T, typename Compare>
-void SortFixed512(T* arr, size_t n, Compare comp) {
-    if (n <= 1) return;
-    if (n <= 16) {
-        SortMicroBlocks(arr, n, comp);
-        return;
-    }
-
-    SortMicroBlocks(arr, n, comp);
-
-    constexpr size_t CACHE_SIZE = 512;
-    T cache[CACHE_SIZE];
-
-    size_t run_len = 16;
-    while (run_len < n) {
-        size_t double_run = run_len * 2;
-        for (size_t i = 0; i < n; i += double_run) {
-            if (i + run_len < n) {
-                size_t len_a = run_len;
-                size_t len_b = std::min(run_len, n - (i + run_len));
-                MergeSymBuffer(arr + i, 0, len_a, len_a + len_b, cache, CACHE_SIZE, comp);
-            }
-        }
-        run_len = double_run;
-    }
-}
-
-// 4.2: Production Byte-Budgeted Version (Stack-Safe for Arbitrary Types)
-// MaxStackBytes defaults to 4096 bytes (4 KB), safely fitting into L1 cache
-// and preventing stack overflow even for multi-kilobyte structs.
+/**
+ * @brief Sorts [arr, arr + n) stably in-place with bounded stack consumption.
+ * 
+ * @tparam MaxStackBytes Maximum stack buffer budget in bytes (default: 4096 = 4 KB).
+ * @param arr Pointer to first element.
+ * @param n Number of elements.
+ * @param comp Binary predicate comparator.
+ */
 template <size_t MaxStackBytes = 4096, typename T, typename Compare>
 void Sort(T* arr, size_t n, Compare comp) {
     if (n <= 1) return;
@@ -173,7 +294,7 @@ void Sort(T* arr, size_t n, Compare comp) {
                 if (i + run_len < n) {
                     size_t len_a = run_len;
                     size_t len_b = std::min(run_len, n - (i + run_len));
-                    MergeSymBuffer(arr + i, 0, len_a, len_a + len_b, nullptr, 0, comp);
+                    MergeSymBuffer(arr + i, 0, len_a, len_a + len_b, static_cast<T*>(nullptr), 0, comp);
                 }
             }
             run_len = double_run;
@@ -181,18 +302,18 @@ void Sort(T* arr, size_t n, Compare comp) {
     }
 }
 
-template <typename RandomAccessIterator, typename Compare>
+template <size_t MaxStackBytes = 4096, typename RandomAccessIterator, typename Compare>
 inline void Sort(RandomAccessIterator first, RandomAccessIterator last, Compare comp) {
     size_t n = std::distance(first, last);
     if (n <= 1) return;
-    Sort<4096>(&first[0], n, comp);
+    Sort<MaxStackBytes>(&first[0], n, comp);
 }
 
-template <typename RandomAccessIterator>
+template <size_t MaxStackBytes = 4096, typename RandomAccessIterator>
 inline void Sort(RandomAccessIterator first, RandomAccessIterator last) {
-    Sort(first, last, std::less<typename std::iterator_traits<RandomAccessIterator>::value_type>());
+    Sort<MaxStackBytes>(first, last, std::less<typename std::iterator_traits<RandomAccessIterator>::value_type>());
 }
 
 } // namespace VBlock
 
-#endif // VBLOCK_SORT_HPP
+#endif // VBLOCK_VBLOCK_SORT_HPP

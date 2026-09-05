@@ -1,0 +1,29 @@
+V-BLOCKSORT STACK BUFFER ABLATION BENCHMARK
+Testing: 0 Byte (Pure In-Place), 1 KB (256 ints), 2 KB (512 ints), 4 KB (1024 ints/max)
+vs GNU __inplace_stable_sort (Pure in-place SymMerge)
+
+========================================================================================================
+  BENCHMARK: STACK BUFFER BUDGET COMPARISON (N = 100000, 5 iterations average)
+========================================================================================================
+Distribution          std::sort std::stable  GNU in-place  VBlock (0 B)  VBlock (1KB)  VBlock (2KB)  VBlock (4KB)
+--------------------------------------------------------------------------------------------------------
+Random Uniform          10.96 ms     13.53 ms       61.01 ms       60.98 ms       15.94 ms       15.41 ms       15.36 ms
+Binary (2 Keys)          2.36 ms      4.26 ms        7.80 ms        3.68 ms        3.08 ms        3.08 ms        3.10 ms
+Pipe Organ              12.25 ms      2.75 ms        5.80 ms        3.52 ms        1.27 ms        1.22 ms        1.20 ms
+Push Front               1.70 ms      2.70 ms        2.11 ms        0.44 ms        0.72 ms        0.72 ms        0.70 ms
+Already Sorted           2.40 ms      2.49 ms        2.02 ms        0.40 ms        0.43 ms        0.43 ms        0.42 ms
+Reversed                 1.75 ms      2.86 ms        5.23 ms        1.27 ms        1.28 ms        1.26 ms        1.24 ms
+Sawtooth (16 ramps)      5.17 ms      2.99 ms       11.94 ms       11.02 ms        2.59 ms        2.38 ms        2.33 ms
+
+========================================================================================================
+  BENCHMARK: STACK BUFFER BUDGET COMPARISON (N = 1000000, 3 iterations average)
+========================================================================================================
+Distribution          std::sort std::stable  GNU in-place  VBlock (0 B)  VBlock (1KB)  VBlock (2KB)  VBlock (4KB)
+--------------------------------------------------------------------------------------------------------
+Random Uniform         131.63 ms    160.63 ms      892.27 ms      898.87 ms      240.17 ms      191.30 ms      191.33 ms
+Binary (2 Keys)         29.91 ms     55.67 ms       90.85 ms       36.42 ms       33.09 ms       32.62 ms       32.47 ms
+Pipe Organ             138.54 ms     37.86 ms       72.73 ms       42.32 ms       18.46 ms       18.33 ms       18.52 ms
+Push Front              21.90 ms     42.74 ms       32.40 ms        6.51 ms        9.78 ms       10.06 ms       10.05 ms
+Already Sorted          29.91 ms     39.84 ms       31.55 ms        6.00 ms        6.35 ms        6.40 ms        6.33 ms
+Reversed                21.95 ms     45.10 ms       78.84 ms       21.62 ms       22.19 ms       22.24 ms       22.90 ms
+Sawtooth (16 ramps)     71.59 ms     55.60 ms      180.71 ms      124.94 ms       38.02 ms       35.02 ms       34.19 ms

@@ -211,6 +211,18 @@ void MergeSymBuffer(T* arr, size_t first, size_t mid, size_t last, T* buf, size_
         }
     }
 
+    // Fast leaf base cases when no auxiliary buffer is available
+    if (len1 == 1) {
+        T* m2 = GallopLowerBound(arr + mid, arr + last, arr[first], comp);
+        std::rotate(arr + first, arr + mid, m2);
+        return;
+    }
+    if (len2 == 1) {
+        T* m1 = GallopUpperBound(arr + first, arr + mid, arr[mid], comp);
+        std::rotate(m1, arr + mid, arr + last);
+        return;
+    }
+
     // Symmetric Galloping Split (SymMerge divide & conquer)
     size_t m1, m2;
     if (len1 >= len2) {
@@ -282,7 +294,7 @@ void Sort(T* arr, size_t n, Compare comp) {
                 if (i + run_len < n) {
                     size_t len_a = run_len;
                     size_t len_b = std::min(run_len, n - (i + run_len));
-                    MergeSymBuffer(arr + i, 0, len_a, len_a + len_b, nullptr, 0, comp);
+                    MergeSymBuffer(arr + i, 0, len_a, len_a + len_b, static_cast<T*>(nullptr), 0, comp);
                 }
             }
             run_len = double_run;
