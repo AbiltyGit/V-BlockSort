@@ -91,7 +91,7 @@ V-BlockSort executes via a four-tier hardware-conscious hierarchy:
 
 ```mermaid
 graph TD
-    A["Input Range [first, last)"] --> B["layer 0: 16-Element Unrolled Micro-Kernel"]
+    A["Input Range [first, last)"] --> B["Layer 0: 16-Element Unrolled Micro-Kernel"]
     B --> C["Base Sorted Partitions (Size 16)"]
     C --> D["Layer 1: Galloping Search & Adaptive Boundary Skips"]
     D --> E{"Partition Size <= Stack Budget?"}
