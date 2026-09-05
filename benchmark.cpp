@@ -61,14 +61,11 @@ namespace GrailWrapper {
 // 3. KotaSort Clean C++ Port
 #include "KotaSort/kota_clean.hpp"
 
-// 4. Wall-L MergeSort
-#include "Wall-L MergeSort/wall_l.hpp"
-
-// 5. V-Block Layer 1
-#include "vblock_layer1.hpp"
-
 // 6. V-BlockSort (Final: Layers 0+1+2+3)
 #include "vblock_sort.hpp"
+
+// 7. V-BlockSort SAT-Hybrid
+#include "vblock_sort_sat_hybrid.hpp"
 
 // Terminal Colors
 namespace Color {
@@ -309,14 +306,6 @@ std::vector<SorterConfig> get_all_sorters() {
             }
         },
         {
-            "V-Block (Layer 1)",
-            "O(1) 512-buf",
-            true,
-            [](Element* arr, size_t n) {
-                VBlock::SortLayer1(arr, n, element_less);
-            }
-        },
-        {
             "V-BlockSort (Final)",
             "O(1) in-place",
             true,
@@ -325,19 +314,11 @@ std::vector<SorterConfig> get_all_sorters() {
             }
         },
         {
-            "Wall-L (L=3)",
-            "O(N) dynamic",
+            "V-Block (SAT-Hybrid)",
+            "O(1) in-place",
             true,
             [](Element* arr, size_t n) {
-                WallL::sort(arr, n, 3, element_less);
-            }
-        },
-        {
-            "Wall-L (L=6)",
-            "O(N) dynamic",
-            true,
-            [](Element* arr, size_t n) {
-                WallL::sort(arr, n, 6, element_less);
+                VBlockSat::Sort(arr, n, element_less);
             }
         }
     };

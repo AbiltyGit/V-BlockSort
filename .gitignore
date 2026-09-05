@@ -1,22 +1,53 @@
-# Binaries & executables
-benchmark
-bench_struct_sizes
-bench_vs_gnu
-microbench_layer0
-microbench_layer1
-microbench_layer2
-test_vblock_l1
-test_vblock_l2
-test_symmergesort
-test_correctness
-master_benchmark
-
-# Build artifacts
+# Build & Object Files
 build/
+bin/
+obj/
 *.o
 *.a
 *.so
 *.out
+*.dSYM/
+.DS_Store
 
-# Raw logs
+# Performance & Profiling Logs
 *.log
+perf_*.txt
+perf.data*
+gmon.out
+*_results.txt
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+
+# Compiled Binaries (root and subdirs)
+/benchmark
+/bench_full_tournament
+/bench_high_n
+/bench_sat_hybrid
+/bench_zero_buffer
+/master_benchmark
+/microbench_layer0
+/microbench_layer1
+/microbench_layer2
+/test_vblock_l1
+/test_vblock_l2
+/test_symmergesort
+/test_correctness
+/external_benchmarks/bench_10million
+/external_benchmarks/bench_orlp
+/external_benchmarks/bench_scandum_suite
+/external_benchmarks/bench_stack_budgets
+/external_benchmarks/perf_profile
+/sat_key_cegar/bench_micro_merge
+/sat_key_cegar/run_cegar_synthesis
+/sat_key_cegar/synthesize_8_8
+/sat_key_cegar/verify_invariant
+
+# Never ignore C++ sources or headers
+!*.cpp
+!*.hpp
+!*.h
+!*.md
+!CMakeLists.txt

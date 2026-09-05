@@ -1,27 +1,14 @@
-#ifndef VBLOCK_VBLOCK_SORT_HPP
-#define VBLOCK_VBLOCK_SORT_HPP
+#ifndef VBLOCK_VBLOCK_SORT_SAT_HYBRID_HPP
+#define VBLOCK_VBLOCK_SORT_SAT_HYBRID_HPP
 
 /**
  * ============================================================================
- * V-BlockSort: High-Performance, Stable, In-Place Hybrid Sorting Algorithm
+ * V-BlockSort SAT-Hybrid: Dual-Mode Architecture (L1 Buffer + SAT 0-Buffer Leaf)
  * ============================================================================
  * 
  * Architecture:
- * - Katman 0: Compile-time unrolled straight-insertion micro-kernel (N <= 16).
- * - Katman 1: Branch-efficient Galloping search (exponential step lower/upper bound)
- *             with adaptive boundary skips (O(1) comparison on sorted/reversed data).
- * - Katman 2: Low-Key Shield via SymMerge divide-and-conquer (prevents KotaSort O(N^2)).
- * - Katman 3 (L1 Buffer Mode): High-throughput linear streaming stack buffer (default <= 4 KB).
- * - Katman 3 (SAT 0-Buffer Mode): 11 Formally Verified SAT Flat Micro-Kernels (0-recursion, 0-rotate).
- * 
- * Properties:
- * - 100% Strictly Stable (preserves relative order of equivalent keys).
- * - Zero Dynamic Heap Allocations (0 B heap memory, unlike std::stable_sort).
- * - Strictly Bounded Stack Footprint (<= MaxStackBytes, default 4096 B).
- * - Standard C++17 Header-Only Library.
- * 
- * License: MIT License
- * ============================================================================
+ * - Mode A (Buffer Available, buf_cap > 0): Fast L1-resident streaming linear merge
+ * - Mode B (Zero Buffer, buf_cap == 0): Formally verified SAT flat micro-kernels (0-recursion)
  */
 
 #include <cstddef>
@@ -30,9 +17,9 @@
 #include <utility>
 #include <iterator>
 #include <functional>
-#include "synthesized_invariants.hpp"
+#include "sat_key_cegar/include/synthesized_invariants.hpp"
 
-namespace VBlock {
+namespace VBlockSat {
 
 // =========================================================================
 // SECTION 1: MICRO-KERNEL BASE (Katman 0: 16-Element Unrolled Kernel)
@@ -165,6 +152,7 @@ void MergeSymBuffer(T* arr, size_t first, size_t mid, size_t last, T* buf, size_
 
     // =====================================================================
     // MODE 1: L1 STREAMING STACK BUFFER (buf_cap > 0)
+    // High-throughput linear streaming merge with hardware prefetching.
     // =====================================================================
     if (buf != nullptr && buf_cap > 0) {
         if (len1 <= buf_cap) {
@@ -197,7 +185,7 @@ void MergeSymBuffer(T* arr, size_t first, size_t mid, size_t last, T* buf, size_
     } else {
         // =================================================================
         // MODE 2: PURE ZERO-BUFFER IN-PLACE MODE (buf_cap == 0 / MaxStackBytes=0)
-        // SAT Synthesized Flat Micro-Kernel Dispatch (0-Recursion, 0-Rotation)
+        // Eliminates std::rotate recursions via 11 synthesized SAT kernels.
         // =================================================================
         if (SatCegar::Synthesized::try_micro_merge_leaf(arr + first, len1, len2, comp)) {
             return;
@@ -292,6 +280,6 @@ inline void Sort(RandomAccessIterator first, RandomAccessIterator last) {
     Sort<MaxStackBytes>(first, last, std::less<ValueType>());
 }
 
-} // namespace VBlock
+} // namespace VBlockSat
 
-#endif // VBLOCK_VBLOCK_SORT_HPP
+#endif // VBLOCK_VBLOCK_SORT_SAT_HYBRID_HPP
