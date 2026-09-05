@@ -91,27 +91,27 @@ V-BlockSort executes via a four-tier hardware-conscious hierarchy:
 
 ```mermaid
 graph TD
-    A["Input Range [first, last)"] --> B["Katman 0: 16-Element Unrolled Micro-Kernel"]
+    A["Input Range [first, last)"] --> B["layer 0: 16-Element Unrolled Micro-Kernel"]
     B --> C["Base Sorted Partitions (Size 16)"]
-    C --> D["Katman 1: Galloping Search & Adaptive Boundary Skips"]
+    C --> D["Layer 1: Galloping Search & Adaptive Boundary Skips"]
     D --> E{"Partition Size <= Stack Budget?"}
-    E -- Yes (buf_cap > 0) --> F["Katman 3 (Mode 1): Streaming L1 Stack Merge"]
+    E -- Yes (buf_cap > 0) --> F["Layer 3 (Mode 1): Streaming L1 Stack Merge"]
     E -- No (or buf_cap == 0) --> G{"SAT Micro-Kernel Match (2+1 .. 8+8)?"}
-    G -- Match --> H["Katman 3 (Mode 2): SAT Flat Micro-Kernel (0-Rotate, 0-Rec)"]
-    G -- No Match --> I["Katman 2: SymMerge Divide & Conquer (m1, m2 Split + Rotate)"]
+    G -- Match --> H["Layer 3 (Mode 2): SAT Flat Micro-Kernel (0-Rotate, 0-Rec)"]
+    G -- No Match --> I["Layer 2: SymMerge Divide & Conquer (m1, m2 Split + Rotate)"]
     I --> D
 ```
 
-### Katman 0: 16-Element Unrolled Micro-Kernel
+### Layer 0: 16-Element Unrolled Micro-Kernel
 Empirically proven straight-insertion micro-kernel unrolled at compile-time. Operates entirely within processor registers without branch prediction penalties on partially ordered data.
 
-### Katman 1: Exponential Galloping Search & Adaptive Boundary Skips
+### Layer 1: Exponential Galloping Search & Adaptive Boundary Skips
 Inspects boundary elements ($A[\text{last}] \le B[\text{first}]$) in exactly **1 comparison**. Bypasses entire merge passes on pre-sorted data ($O(N)$ best-case) and resolves inverted runs via single cyclic rotations.
 
-### Katman 2: Low-Key Shield (SymMerge Divide-and-Conquer)
+### Layer 2: Low-Key Shield (SymMerge Divide-and-Conquer)
 Eliminates the classic Block Sort key-extraction failure mode. When unique key cardinality is low ($K \ll 2\sqrt{N}$), avoids quadratic $O(N^2)$ fallbacks (which cripple algorithms like KotaSort) by executing balanced binary galloping subdivisions in $O(N \log K)$ comparisons.
 
-### Katman 3: Dual-Mode Execution Engine
+### Layer 3: Dual-Mode Execution Engine
 - **Mode 1 (L1 Streaming Buffer Mode - default `MaxStackBytes = 4096`):**
   When sub-partitions fit within the 4 KB L1 cache stack budget, merges are completed via linear streaming passes (`p_buf` and `p_b`), maximizing CPU hardware prefetching and SIMD pipelines.
 - **Mode 2 (Pure 0-Buffer Mode - `MaxStackBytes = 0` / Heavy Structs):**
