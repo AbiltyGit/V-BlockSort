@@ -1,0 +1,221 @@
+[1m[35m
+========================================================================
+       BLOCK SORT & STABLE MERGE SORT BENCHMARK & COMPARISON SUITE
+========================================================================
+[0mAlgorithms Evaluated:
+  - std::sort               : Fast C++ Introsort (Unstable baseline)
+  - std::stable_sort        : Standard Stable Mergesort with O(N) buffer
+  - std::__inplace_stable   : libstdc++ In-Place Stable Sort (O(N log^2 N))
+  - GrailSort (In-Place)    : Andrey Astrelin's Pure In-Place Block Sort (O(1))
+  - GrailSort (512-Buf)     : GrailSort with 512-Element Static Buffer
+  - WikiSort                : Mike McFadden's Block Sort (O(1) with cache)
+  - KotaSort (In-Place)     : aphitorite's KotaSort (Full In-Place C++ Port)
+  - Wall-L (L=3, L=6)       : Layered Mergesort (O(N) Dynamic Memory Allocation)
+
+
+[1m[36m========================================================================================
+  DISTRIBUTION: [37mRandom Uniform (Average Case)[36m | N = [33m100000[36m
+========================================================================================[0m
+[1mAlgorithm                Memory Type        Time (ms)     Comparisons   Correct?      Stability[0m
+-----------------------------------------------------------------------------------------------
+std::sort                [2mO(log N) stack[0m       12.46         1981126  [32m     PASS[0m  [33m    UNSTABLE*[0m
+std::stable_sort         [2mO(N) buffer[0m       15.23         1595161  [32m     PASS[0m  [32m       STABLE[0m
+std::__inplace_stable    [2mO(1) in-place[0m       74.34         2219544  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (In-Place)     [2mO(1) in-place[0m       29.78         1691875  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (512-Buf)      [2mO(1) 512-buf[0m       26.40         1693058  [32m     PASS[0m  [32m       STABLE[0m
+WikiSort                 [2mO(1) 512-buf[0m       20.07         1832292  [32m     PASS[0m  [32m       STABLE[0m
+KotaSort (In-Place)      [2mO(1) in-place[0m       28.50         1714582  [32m     PASS[0m  [32m       STABLE[0m
+V-Block (Layer 1)        [2mO(1) 512-buf[0m       16.63         1827507  [32m     PASS[0m  [32m       STABLE[0m
+V-BlockSort (Final)      [2mO(1) in-place[0m       19.13         1863871  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=3)             [2mO(N) dynamic[0m       30.23         1641450  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=6)             [2mO(N) dynamic[0m       42.01         1666423  [32m     PASS[0m  [32m       STABLE[0m
+
+[1m[36m========================================================================================
+  DISTRIBUTION: [37mBinary / 2 Keys (Extreme Low Keys)[36m | N = [33m100000[36m
+========================================================================================[0m
+[1mAlgorithm                Memory Type        Time (ms)     Comparisons   Correct?      Stability[0m
+-----------------------------------------------------------------------------------------------
+std::sort                [2mO(log N) stack[0m        4.62         1442663  [32m     PASS[0m  [33m    UNSTABLE*[0m
+std::stable_sort         [2mO(N) buffer[0m        5.21         1273292  [32m     PASS[0m  [32m       STABLE[0m
+std::__inplace_stable    [2mO(1) in-place[0m       10.57          643814  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (In-Place)     [2mO(1) in-place[0m       11.52         1248910  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (512-Buf)      [2mO(1) 512-buf[0m       11.36         1248910  [32m     PASS[0m  [32m       STABLE[0m
+WikiSort                 [2mO(1) 512-buf[0m        6.62          866099  [32m     PASS[0m  [32m       STABLE[0m
+KotaSort (In-Place)      [2mO(1) in-place[0m       11.26         1465908  [32m     PASS[0m  [32m       STABLE[0m
+V-Block (Layer 1)        [2mO(1) 512-buf[0m        4.70          756694  [32m     PASS[0m  [32m       STABLE[0m
+V-BlockSort (Final)      [2mO(1) in-place[0m        5.33          586498  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=3)             [2mO(N) dynamic[0m       19.03         1281695  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=6)             [2mO(N) dynamic[0m       35.69         1322557  [32m     PASS[0m  [32m       STABLE[0m
+
+[1m[36m========================================================================================
+  DISTRIBUTION: [37m4 Keys (Low Key Diversity)[36m | N = [33m100000[36m
+========================================================================================[0m
+[1mAlgorithm                Memory Type        Time (ms)     Comparisons   Correct?      Stability[0m
+-----------------------------------------------------------------------------------------------
+std::sort                [2mO(log N) stack[0m        5.19         1444737  [32m     PASS[0m  [33m    UNSTABLE*[0m
+std::stable_sort         [2mO(N) buffer[0m        7.00         1451900  [32m     PASS[0m  [32m       STABLE[0m
+std::__inplace_stable    [2mO(1) in-place[0m       19.80          867877  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (In-Place)     [2mO(1) in-place[0m       18.70         1564978  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (512-Buf)      [2mO(1) 512-buf[0m       19.08         1564978  [32m     PASS[0m  [32m       STABLE[0m
+WikiSort                 [2mO(1) 512-buf[0m       11.89         1033057  [32m     PASS[0m  [32m       STABLE[0m
+KotaSort (In-Place)      [2mO(1) in-place[0m       22.72         1886807  [32m     PASS[0m  [32m       STABLE[0m
+V-Block (Layer 1)        [2mO(1) 512-buf[0m       11.36         1320903  [32m     PASS[0m  [32m       STABLE[0m
+V-BlockSort (Final)      [2mO(1) in-place[0m       11.35          979599  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=3)             [2mO(N) dynamic[0m       22.62         1473851  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=6)             [2mO(N) dynamic[0m       33.94         1511386  [32m     PASS[0m  [32m       STABLE[0m
+
+[1m[36m========================================================================================
+  DISTRIBUTION: [37mSqrt(N) Keys (Borderline Buffer)[36m | N = [33m100000[36m
+========================================================================================[0m
+[1mAlgorithm                Memory Type        Time (ms)     Comparisons   Correct?      Stability[0m
+-----------------------------------------------------------------------------------------------
+std::sort                [2mO(log N) stack[0m        8.52         1592206  [32m     PASS[0m  [33m    UNSTABLE*[0m
+std::stable_sort         [2mO(N) buffer[0m       12.03         1594553  [32m     PASS[0m  [32m       STABLE[0m
+std::__inplace_stable    [2mO(1) in-place[0m       56.85         1806552  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (In-Place)     [2mO(1) in-place[0m       35.09         2690523  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (512-Buf)      [2mO(1) 512-buf[0m       34.79         2690683  [32m     PASS[0m  [32m       STABLE[0m
+WikiSort                 [2mO(1) 512-buf[0m       16.82         1786681  [32m     PASS[0m  [32m       STABLE[0m
+KotaSort (In-Place)      [2mO(1) in-place[0m       66.46         3015205  [32m     PASS[0m  [32m       STABLE[0m
+V-Block (Layer 1)        [2mO(1) 512-buf[0m       13.60         1827466  [32m     PASS[0m  [32m       STABLE[0m
+V-BlockSort (Final)      [2mO(1) in-place[0m       15.38         1820582  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=3)             [2mO(N) dynamic[0m       26.87         1640303  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=6)             [2mO(N) dynamic[0m       39.58         1665661  [32m     PASS[0m  [32m       STABLE[0m
+
+[1m[36m========================================================================================
+  DISTRIBUTION: [37mAll Equal (1 Key)[36m | N = [33m100000[36m
+========================================================================================[0m
+[1mAlgorithm                Memory Type        Time (ms)     Comparisons   Correct?      Stability[0m
+-----------------------------------------------------------------------------------------------
+std::sort                [2mO(log N) stack[0m        3.72         1429003  [32m     PASS[0m  [33m    UNSTABLE*[0m
+std::stable_sort         [2mO(N) buffer[0m        4.32          879918  [32m     PASS[0m  [32m       STABLE[0m
+std::__inplace_stable    [2mO(1) in-place[0m        2.86          391495  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (In-Place)     [2mO(1) in-place[0m        5.14         1115011  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (512-Buf)      [2mO(1) 512-buf[0m        4.91         1115011  [32m     PASS[0m  [32m       STABLE[0m
+WikiSort                 [2mO(1) 512-buf[0m        0.62          237571  [32m     PASS[0m  [32m       STABLE[0m
+KotaSort (In-Place)      [2mO(1) in-place[0m        1.51          299997  [32m     PASS[0m  [32m       STABLE[0m
+V-Block (Layer 1)        [2mO(1) 512-buf[0m        0.50           99999  [32m     PASS[0m  [32m       STABLE[0m
+V-BlockSort (Final)      [2mO(1) in-place[0m        0.63           99999  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=3)             [2mO(N) dynamic[0m        0.96           99999  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=6)             [2mO(N) dynamic[0m        9.76           99999  [32m     PASS[0m  [32m       STABLE[0m
+
+[1m[36m========================================================================================
+  DISTRIBUTION: [37mAlready Sorted (Best Case)[36m | N = [33m100000[36m
+========================================================================================[0m
+[1mAlgorithm                Memory Type        Time (ms)     Comparisons   Correct?      Stability[0m
+-----------------------------------------------------------------------------------------------
+std::sort                [2mO(log N) stack[0m        2.99         2113369  [32m     PASS[0m  [32m       STABLE[0m
+std::stable_sort         [2mO(N) buffer[0m        3.86          879918  [32m     PASS[0m  [32m       STABLE[0m
+std::__inplace_stable    [2mO(1) in-place[0m        2.48          391495  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (In-Place)     [2mO(1) in-place[0m       10.28          609483  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (512-Buf)      [2mO(1) 512-buf[0m        7.22          613019  [32m     PASS[0m  [32m       STABLE[0m
+WikiSort                 [2mO(1) 512-buf[0m        0.65          240543  [32m     PASS[0m  [32m       STABLE[0m
+KotaSort (In-Place)      [2mO(1) in-place[0m       10.06          745405  [32m     PASS[0m  [32m       STABLE[0m
+V-Block (Layer 1)        [2mO(1) 512-buf[0m        0.40           99999  [32m     PASS[0m  [32m       STABLE[0m
+V-BlockSort (Final)      [2mO(1) in-place[0m        0.63           99999  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=3)             [2mO(N) dynamic[0m        0.87           99999  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=6)             [2mO(N) dynamic[0m        9.97           99999  [32m     PASS[0m  [32m       STABLE[0m
+
+[1m[36m========================================================================================
+  DISTRIBUTION: [37mStrictly Reversed (Worst Inversions)[36m | N = [33m100000[36m
+========================================================================================[0m
+[1mAlgorithm                Memory Type        Time (ms)     Comparisons   Correct?      Stability[0m
+-----------------------------------------------------------------------------------------------
+std::sort                [2mO(log N) stack[0m        2.40         1516394  [32m     PASS[0m  [32m       STABLE[0m
+std::stable_sort         [2mO(N) buffer[0m        4.26          763036  [32m     PASS[0m  [32m       STABLE[0m
+std::__inplace_stable    [2mO(1) in-place[0m       10.00          309927  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (In-Place)     [2mO(1) in-place[0m       13.69          626602  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (512-Buf)      [2mO(1) 512-buf[0m       10.63          613370  [32m     PASS[0m  [32m       STABLE[0m
+WikiSort                 [2mO(1) 512-buf[0m        4.85          284064  [32m     PASS[0m  [32m       STABLE[0m
+KotaSort (In-Place)      [2mO(1) in-place[0m       10.38         1002995  [32m     PASS[0m  [32m       STABLE[0m
+V-Block (Layer 1)        [2mO(1) 512-buf[0m        3.80          762498  [32m     PASS[0m  [32m       STABLE[0m
+V-BlockSort (Final)      [2mO(1) in-place[0m        4.41          762498  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=3)             [2mO(N) dynamic[0m       15.22          946092  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=6)             [2mO(N) dynamic[0m       28.22          863147  [32m     PASS[0m  [32m       STABLE[0m
+
+[1m[36m========================================================================================
+  DISTRIBUTION: [37mAlmost Sorted (95% In-Order)[36m | N = [33m100000[36m
+========================================================================================[0m
+[1mAlgorithm                Memory Type        Time (ms)     Comparisons   Correct?      Stability[0m
+-----------------------------------------------------------------------------------------------
+std::sort                [2mO(log N) stack[0m        4.16         2014343  [32m     PASS[0m  [32m       STABLE[0m
+std::stable_sort         [2mO(N) buffer[0m        6.12         1465607  [32m     PASS[0m  [32m       STABLE[0m
+std::__inplace_stable    [2mO(1) in-place[0m       20.54          674986  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (In-Place)     [2mO(1) in-place[0m       16.54         1570074  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (512-Buf)      [2mO(1) 512-buf[0m       15.10         1562658  [32m     PASS[0m  [32m       STABLE[0m
+WikiSort                 [2mO(1) 512-buf[0m        9.49         1490937  [32m     PASS[0m  [32m       STABLE[0m
+KotaSort (In-Place)      [2mO(1) in-place[0m       17.17         1397212  [32m     PASS[0m  [32m       STABLE[0m
+V-Block (Layer 1)        [2mO(1) 512-buf[0m        9.17         1384673  [32m     PASS[0m  [32m       STABLE[0m
+V-BlockSort (Final)      [2mO(1) in-place[0m        8.32         1325445  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=3)             [2mO(N) dynamic[0m       21.51         1429686  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=6)             [2mO(N) dynamic[0m       31.82         1460474  [32m     PASS[0m  [32m       STABLE[0m
+
+[1m[36m========================================================================================
+  DISTRIBUTION: [37mOrgan Pipe (Ascending then Descending)[36m | N = [33m100000[36m
+========================================================================================[0m
+[1mAlgorithm                Memory Type        Time (ms)     Comparisons   Correct?      Stability[0m
+-----------------------------------------------------------------------------------------------
+std::sort                [2mO(log N) stack[0m       15.97         4539618  [32m     PASS[0m  [33m    UNSTABLE*[0m
+std::stable_sort         [2mO(N) buffer[0m        4.75          871475  [32m     PASS[0m  [32m       STABLE[0m
+std::__inplace_stable    [2mO(1) in-place[0m        9.70          524327  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (In-Place)     [2mO(1) in-place[0m       13.20          781588  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (512-Buf)      [2mO(1) 512-buf[0m        9.95          714942  [32m     PASS[0m  [32m       STABLE[0m
+WikiSort                 [2mO(1) 512-buf[0m        2.67          388837  [32m     PASS[0m  [32m       STABLE[0m
+KotaSort (In-Place)      [2mO(1) in-place[0m       11.70          955537  [32m     PASS[0m  [32m       STABLE[0m
+V-Block (Layer 1)        [2mO(1) 512-buf[0m        2.52          562966  [32m     PASS[0m  [32m       STABLE[0m
+V-BlockSort (Final)      [2mO(1) in-place[0m        2.76          538397  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=3)             [2mO(N) dynamic[0m       10.02          600783  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=6)             [2mO(N) dynamic[0m       20.80          557482  [32m     PASS[0m  [32m       STABLE[0m
+
+[1m[36m========================================================================================
+  DISTRIBUTION: [37mReverse Organ Pipe (V-Shape)[36m | N = [33m100000[36m
+========================================================================================[0m
+[1mAlgorithm                Memory Type        Time (ms)     Comparisons   Correct?      Stability[0m
+-----------------------------------------------------------------------------------------------
+std::sort                [2mO(log N) stack[0m       15.21         4286329  [32m     PASS[0m  [33m    UNSTABLE*[0m
+std::stable_sort         [2mO(N) buffer[0m        4.58          871476  [32m     PASS[0m  [32m       STABLE[0m
+std::__inplace_stable    [2mO(1) in-place[0m        9.65          525025  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (In-Place)     [2mO(1) in-place[0m       15.17          771472  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (512-Buf)      [2mO(1) 512-buf[0m       12.79          725692  [32m     PASS[0m  [32m       STABLE[0m
+WikiSort                 [2mO(1) 512-buf[0m        3.09          388836  [32m     PASS[0m  [32m       STABLE[0m
+KotaSort (In-Place)      [2mO(1) in-place[0m       12.28          959807  [32m     PASS[0m  [32m       STABLE[0m
+V-Block (Layer 1)        [2mO(1) 512-buf[0m        2.63          533308  [32m     PASS[0m  [32m       STABLE[0m
+V-BlockSort (Final)      [2mO(1) in-place[0m        2.92          542985  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=3)             [2mO(N) dynamic[0m       10.94          689694  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=6)             [2mO(N) dynamic[0m       21.52          655545  [32m     PASS[0m  [32m       STABLE[0m
+
+[1m[36m========================================================================================
+  DISTRIBUTION: [37mSawtooth (16 Periodic Ramps)[36m | N = [33m100000[36m
+========================================================================================[0m
+[1mAlgorithm                Memory Type        Time (ms)     Comparisons   Correct?      Stability[0m
+-----------------------------------------------------------------------------------------------
+std::sort                [2mO(log N) stack[0m        6.94         2208020  [32m     PASS[0m  [33m    UNSTABLE*[0m
+std::stable_sort         [2mO(N) buffer[0m        4.72         1101318  [32m     PASS[0m  [32m       STABLE[0m
+std::__inplace_stable    [2mO(1) in-place[0m       17.51          958762  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (In-Place)     [2mO(1) in-place[0m       14.87         1164506  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (512-Buf)      [2mO(1) 512-buf[0m       13.23         1136087  [32m     PASS[0m  [32m       STABLE[0m
+WikiSort                 [2mO(1) 512-buf[0m        4.57          750429  [32m     PASS[0m  [32m       STABLE[0m
+KotaSort (In-Place)      [2mO(1) in-place[0m       14.61         1049631  [32m     PASS[0m  [32m       STABLE[0m
+V-Block (Layer 1)        [2mO(1) 512-buf[0m        4.33          613232  [32m     PASS[0m  [32m       STABLE[0m
+V-BlockSort (Final)      [2mO(1) in-place[0m        5.94          581592  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=3)             [2mO(N) dynamic[0m        9.62          702134  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=6)             [2mO(N) dynamic[0m       19.55          742073  [32m     PASS[0m  [32m       STABLE[0m
+
+[1m[36m========================================================================================
+  DISTRIBUTION: [37mRotated Sorted (Cyclic Shift)[36m | N = [33m100000[36m
+========================================================================================[0m
+[1mAlgorithm                Memory Type        Time (ms)     Comparisons   Correct?      Stability[0m
+-----------------------------------------------------------------------------------------------
+std::sort                [2mO(log N) stack[0m        2.51         1516396  [32m     PASS[0m  [32m       STABLE[0m
+std::stable_sort         [2mO(N) buffer[0m        4.18          879918  [32m     PASS[0m  [32m       STABLE[0m
+std::__inplace_stable    [2mO(1) in-place[0m        3.46          391495  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (In-Place)     [2mO(1) in-place[0m       12.46          760758  [32m     PASS[0m  [32m       STABLE[0m
+GrailSort (512-Buf)      [2mO(1) 512-buf[0m        9.77          752550  [32m     PASS[0m  [32m       STABLE[0m
+WikiSort                 [2mO(1) 512-buf[0m        1.22          240544  [32m     PASS[0m  [32m       STABLE[0m
+KotaSort (In-Place)      [2mO(1) in-place[0m       11.57          764094  [32m     PASS[0m  [32m       STABLE[0m
+V-Block (Layer 1)        [2mO(1) 512-buf[0m        1.40          215424  [32m     PASS[0m  [32m       STABLE[0m
+V-BlockSort (Final)      [2mO(1) in-place[0m        1.37          101008  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=3)             [2mO(N) dynamic[0m        5.28          321238  [32m     PASS[0m  [32m       STABLE[0m
+Wall-L (L=6)             [2mO(N) dynamic[0m       14.48          341143  [32m     PASS[0m  [32m       STABLE[0m
+
+[2m* UNSTABLE*: std::sort is intentionally not stable by C++ specification.
+[0m

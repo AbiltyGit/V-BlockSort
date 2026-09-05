@@ -1,0 +1,76 @@
+[1m[35m========================================================================
+    V-BLOCKSORT STRUCT-SIZE & STACK FOOTPRINT BENCHMARK
+========================================================================
+[0m
+[1m[36m========================================================================================
+  STRUCT TYPE: [37mSmallStruct (16B) (16 Bytes per Element) | N = 50000
+  Theoretical Fixed-512 Stack: 8 KB | Byte-Budgeted 4KB Stack: 4 KB
+========================================================================================
+[0mAlgorithm                        Stack Used      Heap Used     Time (ms)        Status
+--------------------------------------------------------------------------------------
+std::sort                          O(log N)            0 B          6.06[33mUNSTABLE*[0m
+std::stable_sort                   O(log N)           0 MB          7.97[32mPASS (STABLE)[0m
+KotaSort (In-Place)              O(1) ~1 KB            0 B         11.91[32mPASS (STABLE)[0m
+WikiSort                               8 KB            0 B          8.09[32mPASS (STABLE)[0m
+V-Block (Fixed 512)                    8 KB            0 B          9.59[32mPASS (STABLE)[0m
+V-Block (Byte-Budgeted 4KB) 4 KB (256 elem)            0 B          9.94[32mPASS (STABLE)[0m
+V-Block (Byte-Budgeted 16KB)8 KB (512 elem)            0 B          9.63[32mPASS (STABLE)[0m
+
+[1m[36m========================================================================================
+  STRUCT TYPE: [37mMediumStruct (64B) (64 Bytes per Element) | N = 50000
+  Theoretical Fixed-512 Stack: 32.00 KB | Byte-Budgeted 4KB Stack: 4.00 KB
+========================================================================================
+[0mAlgorithm                        Stack Used      Heap Used     Time (ms)        Status
+--------------------------------------------------------------------------------------
+std::sort                          O(log N)            0 B          7.35[33mUNSTABLE*[0m
+std::stable_sort                   O(log N)           3 MB         12.12[32mPASS (STABLE)[0m
+KotaSort (In-Place)              O(1) ~1 KB            0 B         21.10[32mPASS (STABLE)[0m
+WikiSort                              32 KB            0 B         13.69[32mPASS (STABLE)[0m
+V-Block (Fixed 512)                   32 KB            0 B         16.45[32mPASS (STABLE)[0m
+V-Block (Byte-Budgeted 4KB)  4 KB (64 elem)            0 B         20.70[32mPASS (STABLE)[0m
+V-Block (Byte-Budgeted 16KB)16 KB (256 elem)            0 B         17.76[32mPASS (STABLE)[0m
+
+[1m[36m========================================================================================
+  STRUCT TYPE: [37mLargeStruct (256B) (256 Bytes per Element) | N = 50000
+  Theoretical Fixed-512 Stack: 128.00 KB | Byte-Budgeted 4KB Stack: 4.00 KB
+========================================================================================
+[0mAlgorithm                        Stack Used      Heap Used     Time (ms)        Status
+--------------------------------------------------------------------------------------
+std::sort                          O(log N)            0 B         14.19[33mUNSTABLE*[0m
+std::stable_sort                   O(log N)          12 MB         38.11[32mPASS (STABLE)[0m
+KotaSort (In-Place)              O(1) ~1 KB            0 B         70.81[32mPASS (STABLE)[0m
+WikiSort                             128 KB            0 B         42.86[32mPASS (STABLE)[0m
+V-Block (Fixed 512)                  128 KB            0 B         54.90[32mPASS (STABLE)[0m
+V-Block (Byte-Budgeted 4KB)  4 KB (16 elem)            0 B         77.27[32mPASS (STABLE)[0m
+V-Block (Byte-Budgeted 16KB)16 KB (64 elem)            0 B         69.80[32mPASS (STABLE)[0m
+
+[1m[36m========================================================================================
+  STRUCT TYPE: [37mHugeStruct (1024B / 1KB) (1024 Bytes per Element) | N = 50000
+  Theoretical Fixed-512 Stack: 512.00 KB | Byte-Budgeted 4KB Stack: 4.00 KB
+========================================================================================
+[0mAlgorithm                        Stack Used      Heap Used     Time (ms)        Status
+--------------------------------------------------------------------------------------
+std::sort                          O(log N)            0 B         67.04[33mUNSTABLE*[0m
+std::stable_sort                   O(log N)          48 MB        173.97[32mPASS (STABLE)[0m
+KotaSort (In-Place)              O(1) ~1 KB            0 B        358.11[32mPASS (STABLE)[0m
+WikiSort                             512 KB            0 B        202.46[32mPASS (STABLE)[0m
+V-Block (Fixed 512)                  512 KB            0 B        327.63[32mPASS (STABLE)[0m
+V-Block (Byte-Budgeted 4KB)   4 KB (4 elem)            0 B        505.50[32mPASS (STABLE)[0m
+V-Block (Byte-Budgeted 16KB)16 KB (16 elem)            0 B        459.90[32mPASS (STABLE)[0m
+
+[1m[36m========================================================================================
+  STRUCT TYPE: [37mGiantStruct (2048B / 2KB) (2048 Bytes per Element) | N = 50000
+  Theoretical Fixed-512 Stack: 1024.00 KB | Byte-Budgeted 4KB Stack: 4.00 KB
+========================================================================================
+[0mAlgorithm                        Stack Used      Heap Used     Time (ms)        Status
+--------------------------------------------------------------------------------------
+std::sort                          O(log N)            0 B        132.37[33mUNSTABLE*[0m
+std::stable_sort                   O(log N)          97 MB        390.43[32mPASS (STABLE)[0m
+KotaSort (In-Place)              O(1) ~1 KB            0 B        677.26[32mPASS (STABLE)[0m
+WikiSort                            1024 KB            0 B        465.20[32mPASS (STABLE)[0m
+V-Block (Fixed 512)                 1024 KB            0 B        669.16[32mPASS (STABLE)[0m
+V-Block (Byte-Budgeted 4KB)   4 KB (2 elem)            0 B        975.15[32mPASS (STABLE)[0m
+V-Block (Byte-Budgeted 16KB) 16 KB (8 elem)            0 B        931.30[32mPASS (STABLE)[0m
+
+[1m[32mAll struct size benchmarks completed successfully!
+[0m

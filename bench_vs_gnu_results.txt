@@ -1,0 +1,26 @@
+[1m[35m
+========================================================================================
+     PART 1: PLAIN int32_t BENCHMARK: GNU __inplace_stable_sort vs V-BlockSort
+========================================================================================
+[0mScenario / Distribution           GNU In-Place (ms)V-Block 4KB (ms)         Speedup      Status
+----------------------------------------------------------------------------------------------
+Random Uniform (N=100k)                      66.30           15.21            4.4x[32mPASS[0m
+Binary / 2 Keys (N=100k)                      8.31            3.39            2.5x[32mPASS[0m
+Already Sorted (N=100k)                       2.09            0.46            4.5x[32mPASS[0m
+Strictly Reversed (N=100k)                    5.25            1.50            3.5x[32mPASS[0m
+Organ Pipe (Bitonic N=100k)                   6.58            1.37            4.8x[32mPASS[0m
+Random Uniform (N=1,000,000!)               892.18          204.39            4.4x[32mPASS[0m
+[1m[36m
+========================================================================================
+     PART 2: STRUCT SIZES BENCHMARK: GNU __inplace_stable_sort vs V-BlockSort
+========================================================================================
+[0mStruct Type                     Bytes/Elem GNU In-Place (ms)  V-Block 4KB (ms)       Speedup     Stability
+----------------------------------------------------------------------------------------------------------
+SmallStruct (16B)                       16             29.44              9.54           3.1x[32mSTABLE[0m
+MediumStruct (64B)                      64             39.28             20.96           1.9x[32mSTABLE[0m
+LargeStruct (256B)                     256             94.77             80.11           1.2x[32mSTABLE[0m
+HugeStruct (1024B / 1KB)              1024            498.27            506.33           1.0x[32mSTABLE[0m
+GiantStruct (2048B / 2KB)             2048            893.06            967.82           0.9x[32mSTABLE[0m
+
+[1m[32mGNU In-Place vs V-Block comparison complete!
+[0m
