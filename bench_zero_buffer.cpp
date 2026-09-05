@@ -8,7 +8,7 @@
 #include <cassert>
 
 #include "vblock_sort.hpp"
-#include "vblock_sort_sat_hybrid.hpp"
+#include "legacy/vblock_sort_pure_legacy.hpp"
 
 struct Elem {
     int32_t val;
@@ -161,12 +161,12 @@ void RunZeroBufferSuite(size_t N, int RUNS) {
             auto data2 = data1;
 
             auto t0 = std::chrono::high_resolution_clock::now();
-            VBlock::Sort<0>(data1.begin(), data1.end(), [](const Elem& a, const Elem& b) { return a.val < b.val; });
+            VBlockLegacy::Sort<0>(data1.begin(), data1.end(), [](const Elem& a, const Elem& b) { return a.val < b.val; });
             auto t1 = std::chrono::high_resolution_clock::now();
             total_orig += std::chrono::duration<double, std::milli>(t1 - t0).count();
 
             auto t2 = std::chrono::high_resolution_clock::now();
-            VBlockSat::Sort<0>(data2.begin(), data2.end(), [](const Elem& a, const Elem& b) { return a.val < b.val; });
+            VBlock::Sort<0>(data2.begin(), data2.end(), [](const Elem& a, const Elem& b) { return a.val < b.val; });
             auto t3 = std::chrono::high_resolution_clock::now();
             total_sat += std::chrono::duration<double, std::milli>(t3 - t2).count();
 

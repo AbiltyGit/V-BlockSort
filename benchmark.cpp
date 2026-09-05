@@ -61,11 +61,8 @@ namespace GrailWrapper {
 // 3. KotaSort Clean C++ Port
 #include "KotaSort/kota_clean.hpp"
 
-// 6. V-BlockSort (Final: Layers 0+1+2+3)
+// 6. V-BlockSort (Unified Architecture)
 #include "vblock_sort.hpp"
-
-// 7. V-BlockSort SAT-Hybrid
-#include "vblock_sort_sat_hybrid.hpp"
 
 // Terminal Colors
 namespace Color {
@@ -306,19 +303,19 @@ std::vector<SorterConfig> get_all_sorters() {
             }
         },
         {
-            "V-BlockSort (Final)",
+            "V-BlockSort (4KB)",
             "O(1) in-place",
             true,
             [](Element* arr, size_t n) {
-                VBlock::Sort(arr, n, element_less);
+                VBlock::Sort<4096>(arr, n, element_less);
             }
         },
         {
-            "V-Block (SAT-Hybrid)",
+            "V-BlockSort (0B SAT)",
             "O(1) in-place",
             true,
             [](Element* arr, size_t n) {
-                VBlockSat::Sort(arr, n, element_less);
+                VBlock::Sort<0>(arr, n, element_less);
             }
         }
     };

@@ -8,7 +8,6 @@
 #include <cassert>
 
 #include "vblock_sort.hpp"
-#include "vblock_sort_sat_hybrid.hpp"
 
 struct Elem {
     int32_t val;
@@ -91,9 +90,9 @@ void RunHighScaleTest(size_t N) {
     std::cout << std::left << std::setw(30) << "Distribution"
               << std::right << std::setw(16) << "std::sort"
               << std::setw(18) << "std::stable_sort"
-              << std::setw(18) << "V-Block (Original)"
-              << std::setw(18) << "V-Block (SAT 8+8)"
-              << std::setw(12) << "Speedup"
+              << std::setw(18) << "V-Block (4KB Stack)"
+              << std::setw(18) << "V-Block (0B SAT)"
+              << std::setw(12) << "Ratio"
               << "\n";
     std::cout << std::string(112, '-') << "\n";
 
@@ -114,30 +113,30 @@ void RunHighScaleTest(size_t N) {
         auto t3 = std::chrono::high_resolution_clock::now();
         double time_stable = std::chrono::duration<double, std::milli>(t3 - t2).count();
 
-        // 3. Original V-BlockSort (0 Heap)
+        // 3. V-BlockSort (4 KB Stack Buffer)
         auto d_vblock = master;
         auto t4 = std::chrono::high_resolution_clock::now();
-        VBlock::Sort(d_vblock.begin(), d_vblock.end(), [](const Elem& a, const Elem& b) { return a.val < b.val; });
+        VBlock::Sort<4096>(d_vblock.begin(), d_vblock.end(), [](const Elem& a, const Elem& b) { return a.val < b.val; });
         auto t5 = std::chrono::high_resolution_clock::now();
         double time_vblock = std::chrono::duration<double, std::milli>(t5 - t4).count();
 
-        // 4. SAT-Hybrid V-BlockSort (0 Heap + 8+8 Collapsed Tree)
+        // 4. V-BlockSort (0 B Stack Buffer - Pure In-Place SAT)
         auto d_sat = master;
         auto t6 = std::chrono::high_resolution_clock::now();
-        VBlockSat::Sort(d_sat.begin(), d_sat.end(), [](const Elem& a, const Elem& b) { return a.val < b.val; });
+        VBlock::Sort<0>(d_sat.begin(), d_sat.end(), [](const Elem& a, const Elem& b) { return a.val < b.val; });
         auto t7 = std::chrono::high_resolution_clock::now();
         double time_sat = std::chrono::duration<double, std::milli>(t7 - t6).count();
 
         assert(CheckStable(d_sat));
 
-        double speedup_vs_orig = time_vblock / time_sat;
+        double ratio = time_sat / time_vblock;
 
         std::cout << std::left << std::setw(30) << DistName(d)
                   << std::right << std::setw(13) << std::fixed << std::setprecision(1) << time_sort << " ms"
                   << std::setw(15) << time_stable << " ms"
                   << std::setw(15) << time_vblock << " ms"
                   << std::setw(15) << time_sat << " ms"
-                  << std::setw(11) << std::setprecision(2) << speedup_vs_orig << "x"
+                  << std::setw(11) << std::setprecision(2) << ratio << "x"
                   << "\n";
     }
     std::cout << std::string(112, '-') << "\n";
